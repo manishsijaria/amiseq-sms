@@ -1,0 +1,44 @@
+
+
+  .table-fixed tbody {
+    height: 280px;
+    overflow-y: auto;
+    width: 100%;
+    display: block; 
+  }
+
+  th.date {
+    width: 25%
+  }
+
+  tr.amiseq {
+    background-color: whitesmoke !important;
+  }
+
+  tr.others {
+    background-color:aqua !important;
+  }
+
+  .highlight {
+    background-color:rgb(255, 196, 196) !important;
+  }
+  /*
+  .table-fixed thead {
+    width: 97%;
+  }
+
+  .table-fixed thead, .table-fixed tbody, .table-fixed tr, .table-fixed td, .table-fixed th {
+    display: block;
+  }
+
+  .table-fixed thead, .table-fixed td, .table-fixed th {
+    display: block;
+  }  
+  */
+
+  /*
+  .table-fixed tbody td, .table-fixed thead > tr> th {
+    float: left;
+    border-bottom-width: 0;
+  }
+  */
