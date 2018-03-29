@@ -20,7 +20,7 @@ export default class FilterableCandidateTable extends React.Component {
         })
     }
     render() {
-        const { candidates } = this.props
+        const { candidates, candidates_msg } = this.props
         const { filterText, option } = this.state
         return(
             <div>
@@ -30,6 +30,7 @@ export default class FilterableCandidateTable extends React.Component {
                             option={option}/>
                 <ActionBar/>
                 <CandidateTable candidates={candidates} 
+                                candidates_msg={candidates_msg}
                                 filterText={filterText}
                                 option={option}/>
             </div>

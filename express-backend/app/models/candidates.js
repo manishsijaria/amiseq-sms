@@ -1,6 +1,12 @@
 
 var getConnection = require('../../config/dbconnection')
 var modelsUtils = require('./modelsUtils')
+var CONSTANTS = require('../../config/constants')
+
+const candidate_sql_queries = {
+    CANDIDATES_ID : `SELECT candidate_id from candidate ORDER BY candidate_id`,
+    CANDIDATES_MSGS: `SELECT msg_id, msg_from from candidate_msg WHERE ? ORDER BY msg_id desc`
+}
 
 module.exports.addCandidate = (req, callback) => {
     let {  firstname,lastname,mobile_no,phone,
@@ -263,3 +269,39 @@ module.exports.getCandidateMsgsCount = (candidate_id,fetchText, callback) => {
          })
      })        
  }
+
+ module.exports.candidates_msg_count_array = (cb) => {
+    var arr_candidates_msg_count = []
+    getConnection((err,connection)=> { 
+        connection.query(candidate_sql_queries.CANDIDATES_ID,[],(err,result) => {
+            if(!err) {
+                if(result.length) {
+                    console.log("result.length=" + result.length)
+                    for(let i=0; i < result.length; i++) {
+                        condition = {candidate_id: result[i].candidate_id}
+                        connection.query(candidate_sql_queries.CANDIDATES_MSGS,[condition], 
+                            function(err,result_inner)  {
+                             if(!err) {
+                                 let count = 0
+                                 if(result_inner.length) {
+                                    for(let j=0; j< result_inner.length; j++) {
+                                        if(result_inner[j].msg_from !== CONSTANTS.TWILIO_AMISEQ_NO) {
+                                            count++
+                                        } else {
+                                            break  //exit the for loop, no message at the top
+                                        }
+                                    }
+                                 }
+                                 arr_candidates_msg_count.push({candidate_id: result[i].candidate_id, msg_count: count })
+                                 if(i=== result.length -1) { //fix for closers
+                                    connection.release();
+                                    cb(arr_candidates_msg_count)                
+                                 }
+                             }   
+                        })
+                    }
+                }
+            }
+        })
+    })   
+}

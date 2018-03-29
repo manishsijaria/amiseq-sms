@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var CONSTANTS = require('./config/constants')
 var clientsModels = require('../express-backend/app/models/clients')
+var candidatesModels = require('../express-backend/app/models/candidates')
 
 //var index = require('./routes/index');
 //var users = require('./routes/users');
@@ -54,16 +55,29 @@ server.on('error', onError);
 server.on('listening', onListening);
 //============= socket.io ========================
 io = require('socket.io').listen(server)
-let interval;
+var interval1;
 var clients = io.of('/clients')
   .on("connection", socket => {
       console.log(socket.id)
-      if(interval) {
-        clearInterval(interval)
+      if(interval1) {
+        clearInterval(interval1)
       }
-      interval = setInterval(()=> getClientsMsgsAndEmit(clients), 20000)
+      interval1 = setInterval(()=> getClientsMsgsAndEmit(clients), 20000)
       socket.on("disconnect", () => {
-        clearInterval(interval)
+        clearInterval(interval1)
+        console.log("Client disconnected");
+      })
+})
+var interval2;
+var candidates = io.of('/candidates')
+  .on("connection", socket => {
+      console.log(socket.id)
+      if(interval2) {
+        clearInterval(interval2)
+      }
+      interval2 = setInterval(()=> getCandidatesMsgsAndEmit(candidates), 23000)
+      socket.on("disconnect", () => {
+        clearInterval(interval2)
         console.log("Client disconnected");
       })
 })
@@ -74,7 +88,11 @@ function getClientsMsgsAndEmit(clients) {
     clients.emit("clients-msgs", arr)
   })
 }
-
+function getCandidatesMsgsAndEmit(candidates) {
+  candidatesModels.candidates_msg_count_array((arr) => {
+    candidates.emit("candidates-msgs", arr)
+  })
+}
 //============================================
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

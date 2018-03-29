@@ -13,6 +13,7 @@ export default class CandidateTableHeader extends React.Component {
                     <th>Email </th>
                     <th>Hiredate</th>
                     <th>Company</th>
+                    <th>SMS</th>
                     <th>Actions </th>
                 </tr>
             </thead>

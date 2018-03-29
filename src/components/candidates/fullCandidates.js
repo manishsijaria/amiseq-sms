@@ -6,16 +6,28 @@ import { candidateActions } from '../../_actions'
 import { connect } from 'react-redux'
 
 import FilterableCandidateTable from './filterTable/filterableCandidateTable'
+import { ServerConstants } from '../../_constants'
+import socketIOClient from 'socket.io-client'
 
 class FullCandidates extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            candidates_msg: []
+        }
+    }
     componentWillMount() {
         const { dispatch, candidates } = this.props
+        
         if(!candidates.length) {
             dispatch(candidateActions.getCandidates())
         }
+        this.socket_candidates = socketIOClient('http://127.0.0.1:' + ServerConstants.SERVER_PORT + '/candidates');
+        this.socket_candidates.on("candidates-msgs", data => { this.setState({ candidates_msg: data }) })        
     }
     render() {
         const { candidates, candidateArray } = this.props
+        const { candidates_msg } = this.state
         return(
             <div>
                 {/* Buttons with Link */}
@@ -39,7 +51,7 @@ class FullCandidates extends React.Component {
                     <Button outline color="primary" disabled={candidateArray.length ? false : true} >SMS Checked Candidates</Button> <br/>
                 </Link>
                 <h4>Candidates List </h4>
-                <FilterableCandidateTable candidates={candidates}/>
+                <FilterableCandidateTable candidates={candidates} candidates_msg={candidates_msg}/>
             </div>
         )
     }

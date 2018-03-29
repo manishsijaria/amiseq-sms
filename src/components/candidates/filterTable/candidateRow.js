@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { FormGroup,  Input, Button} from 'reactstrap'
+import { FormGroup,  Input, Button,Badge} from 'reactstrap'
 import  { Link } from 'react-router-dom'
 
 import { candidateActions } from '../../../_actions'
@@ -33,7 +33,7 @@ class CandidateRow extends React.Component {
 
  
     render() {
-        const { candidate  } = this.props
+        const { candidate ,msg_count } = this.props
         return(
             <tr>
                 <td>
@@ -49,6 +49,8 @@ class CandidateRow extends React.Component {
                 <td>{candidate.email}</td>
                 <td>{candidate.hiredate }</td>
                 <td>{candidate.company_name}</td>
+                {(parseInt(msg_count,10) === 0) ? <td><Badge color="secondary">{msg_count}</Badge></td> 
+                            : <td className='others'><Badge color="secondary">{msg_count}</Badge></td>}
                 <td>
                     <Link to={`/candidates/editcandidate/${candidate.candidate_id}`}> 
                         <Button color="primary">Edit</Button>{' '} 
