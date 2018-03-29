@@ -2,7 +2,7 @@
 var getConnection = require('../../config/dbconnection')
 var modelsUtils = require('./modelsUtils')
 var twilio = require('twilio')
-var twilioKeys = require('../../config/twilioKeys')
+var CONSTANTS = require('../../config/constants')
 
 module.exports.twiliopost = (req, callback) => {
     //get the request params, From
@@ -19,7 +19,7 @@ module.exports.twiliopost = (req, callback) => {
             } else {
                 if(result.length) { //Found in client table.
                     //found post the Body in client_msg table.
-                    modelsUtils.insertToClientMsg(connection,From,twilioKeys.amiseq_no, Body, result[0].client_id)
+                    modelsUtils.insertToClientMsg(connection,From,CONSTANTS.TWILIO_AMISEQ_NO, Body, result[0].client_id)
                 } else {
                     //else From should be in candidate table, post the Body in candidate_msg table.
                     const queryCandidate = `SELECT candidate_id, mobile_no FROM candidate WHERE mobile_no=` + `'` + From + `'`
@@ -27,7 +27,7 @@ module.exports.twiliopost = (req, callback) => {
                         if(err) { console.log(err)}
                         else {
                             if(result.length) {
-                                modelsUtils.insertToCandidateMsg(connection,From,twilioKeys.amiseq_no,Body, result[0].candidate_id)
+                                modelsUtils.insertToCandidateMsg(connection,From,CONSTANTS.TWILIO_AMISEQ_NO,Body, result[0].candidate_id)
                             }                           
                         }
                     })

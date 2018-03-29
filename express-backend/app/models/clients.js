@@ -1,6 +1,11 @@
 
 var getConnection = require('../../config/dbconnection')
 var modelsUtils = require('./modelsUtils')
+var CONSTANTS = require('../../config/constants')
+const client_sql_queries = {
+    CLIENTS_ID : `SELECT client_id from client ORDER BY client_id`,
+    CLIENTS_MSGS: `SELECT msg_id, msg_from from client_msg WHERE ? ORDER BY msg_id desc`
+}
 
 module.exports.addClient = (req, callback) => {
     //prepare insert query
@@ -286,4 +291,40 @@ module.exports.getClientMsgsCount = (client_id,fetchText, callback) => {
             }
         })
     })        
+}
+
+module.exports.clients_msg_count_array = (cb) => {
+    var arr_clients_msg_count = []
+    getConnection((err,connection)=> { 
+        connection.query(client_sql_queries.CLIENTS_ID,[],(err,result) => {
+            if(!err) {
+                if(result.length) {
+                    console.log("result.length=" + result.length)
+                    for(let i=0; i < result.length; i++) {
+                        condition = {client_id: result[i].client_id}
+                        connection.query(client_sql_queries.CLIENTS_MSGS,[condition], 
+                            function(err,result_inner)  {
+                             if(!err) {
+                                 let count = 0
+                                 if(result_inner.length) {
+                                    for(let j=0; j< result_inner.length; j++) {
+                                        if(result_inner[j].msg_from !== CONSTANTS.TWILIO_AMISEQ_NO) {
+                                            count++
+                                        } else {
+                                            break  //exit the for loop, no message at the top
+                                        }
+                                    }
+                                 }
+                                 arr_clients_msg_count.push({client_id: result[i].client_id, msg_count: count })
+                                 if(i=== result.length -1) { //fix for closers
+                                    connection.release();
+                                    cb(arr_clients_msg_count)                
+                                 }
+                             }   
+                        })
+                    }
+                }
+            }
+        })
+    })   
 }

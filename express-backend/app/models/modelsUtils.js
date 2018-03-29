@@ -1,4 +1,4 @@
-var twilioKeys = require('../../config/twilioKeys')
+var CONSTANTS = require('../../config/constants')
 var twilio = require('twilio')
 
 const sql_queries = {
@@ -13,21 +13,21 @@ clientList : array containg mobile_no and client_id
 */
 module.exports.sendMsgToClients = (smsText, clientList, connection) => {
     //var insert_client_msg = `INSERT INTO client_msg(sms_text,client_id) VALUES(?,?)`
-    var twilioClient = new twilio(twilioKeys.sid, twilioKeys.token)                            
+    var twilioClient = new twilio(CONSTANTS.TWILIO_SID, CONSTANTS.TWILIO_TOKEN)                            
     //for each client 
     let arrayLength = clientList.length
     for(let i=0; i < arrayLength; i++) {
         //get the mobile no, and send message, smsText
         twilioClient.messages.create({to: clientList[i].mobile_no,
-                            from: twilioKeys.amiseq_no,
+                            from: CONSTANTS.TWILIO_AMISEQ_NO,
                             body: smsText},
         (err, messageData) => {
             if(err) {
                 //log err msg in client_msg table.
-                this.insertToClientMsg(connection, twilioKeys.amiseq_no, clientList[i].mobile_no, err.message,clientList[i].client_id )
+                this.insertToClientMsg(connection, CONSTANTS.TWILIO_AMISEQ_NO, clientList[i].mobile_no, err.message,clientList[i].client_id )
                 console.log(err)
             } else {
-                this.insertToClientMsg(connection,twilioKeys.amiseq_no, clientList[i].mobile_no, smsText,clientList[i].client_id )
+                this.insertToClientMsg(connection,CONSTANTS.TWILIO_AMISEQ_NO, clientList[i].mobile_no, smsText,clientList[i].client_id )
                 //log smsText in client_msg table.
 
                 // print SID of the message you just sent
@@ -51,7 +51,7 @@ clientAndCandidateList: array of objects containing
                         client_id, mobile_no, candidate_mob_no, candidate_id
 */
 module.exports.sendMsgToClientsAndCandidates = (smsText, clientAndCandidateList,connection) => {
-    var twilioClient = new twilio(twilioKeys.sid, twilioKeys.token) 
+    var twilioClient = new twilio(CONSTANTS.TWILIO_SID, CONSTANTS.TWILIO_TOKEN) 
     let clientAndCandidateListCount = clientAndCandidateList.length
     console.log('clientAndCandidateListCount=' +clientAndCandidateListCount)
     
@@ -61,17 +61,17 @@ module.exports.sendMsgToClientsAndCandidates = (smsText, clientAndCandidateList,
         //with client_id send the message to client.
         if(duplicate_clients.indexOf(clientAndCandidateList[i].client_id) === -1) {
             twilioClient.messages.create({to: clientAndCandidateList[i].mobile_no,
-                from: twilioKeys.amiseq_no,
+                from: CONSTANTS.TWILIO_AMISEQ_NO,
                 body: smsText},
                 (err, messageData) => {
                     if(err) {
                         //log err msg in client_msg table.
-                        this.insertToClientMsg(connection,twilioKeys.amiseq_no,clientAndCandidateList[i].mobile_no, err.message,clientAndCandidateList[i].client_id )
+                        this.insertToClientMsg(connection,CONSTANTS.TWILIO_AMISEQ_NO,clientAndCandidateList[i].mobile_no, err.message,clientAndCandidateList[i].client_id )
 
                         console.log(err)
                     } else {
                         //log smsText in client_msg table.
-                        this.insertToClientMsg(connection, twilioKeys.amiseq_no,clientAndCandidateList[i].mobile_no, smsText,clientAndCandidateList[i].client_id )
+                        this.insertToClientMsg(connection, CONSTANTS.TWILIO_AMISEQ_NO,clientAndCandidateList[i].mobile_no, smsText,clientAndCandidateList[i].client_id )
 
                         // print SID of the message you just sent
                         console.log(messageData.sid);
@@ -93,17 +93,17 @@ module.exports.sendMsgToClientsAndCandidates = (smsText, clientAndCandidateList,
 module.exports.sendMsgToCandidate = (twilioClient, connection, smsText, 
                                      candidate_id, candidate_mob_no) => {
     twilioClient.messages.create({to: candidate_mob_no,
-        from: twilioKeys.amiseq_no,
+        from: CONSTANTS.TWILIO_AMISEQ_NO,
         body: smsText},
         (err, messageData) => {
             if(err) {
                 //log err msg in client_msg table.
-                this.insertToCandidateMsg(connection,twilioKeys.amiseq_no,candidate_mob_no, err.message, candidate_id)
+                this.insertToCandidateMsg(connection,CONSTANTS.TWILIO_AMISEQ_NO,candidate_mob_no, err.message, candidate_id)
 
                 console.log(err)
             } else {
                 //log smsText in client_msg table.
-                this.insertToCandidateMsg(connection,twilioKeys.amiseq_no,candidate_mob_no, smsText, candidate_id)
+                this.insertToCandidateMsg(connection,CONSTANTS.TWILIO_AMISEQ_NO,candidate_mob_no, smsText, candidate_id)
 
                 // print SID of the message you just sent
                 console.log(messageData.dateCreated);
@@ -121,7 +121,7 @@ module.exports.insertToCandidateMsg = (connection,from, to, text, candidate_id) 
 }
 
 module.exports.sendMsgToCandidates = (smsText, candidateList, connection, bWithAmiseq) => {
-    var twilioClient = new twilio(twilioKeys.sid, twilioKeys.token) 
+    var twilioClient = new twilio(CONSTANTS.TWILIO_SID, CONSTANTS.TWILIO_TOKEN) 
     let arrayLength = candidateList.length
     for(let i=0; i < arrayLength; i++) {
         if(bWithAmiseq) { //only with Amiseq Inc.

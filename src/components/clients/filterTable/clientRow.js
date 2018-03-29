@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { FormGroup,  Input, Button} from 'reactstrap'
+import { FormGroup,  Input, Button, Badge} from 'reactstrap'
 import  { Link } from 'react-router-dom'
 
 import { clientActions } from '../../../_actions'
@@ -32,7 +32,7 @@ class ClientRow extends React.Component {
     }
  
     render() {
-        const { client  } = this.props
+        const { client, msg_count   } = this.props
         return(
             <tr>
                 <td>
@@ -47,6 +47,7 @@ class ClientRow extends React.Component {
                 <td>{client.contact_person_name}</td>
                 <td>{client.mobile_no}</td>
                 <td>{client.email}</td>
+                <td><Badge color="secondary">{msg_count}</Badge></td>
                 <td>
                     <Link to={`/clients/editclient/${client.client_id}`}> <Button color="primary">Edit</Button>{' '} </Link> 
                 </td>

@@ -14,13 +14,13 @@ export default class FilterableClientTable extends React.Component {
         })
     }
     render() {
-        const { clients } = this.props
+        const { clients, clients_msg  } = this.props
         const { filterText } = this.state
         return(
             <div>
                 <SearchBar filterText={filterText} onFilterTextChange={this.handelFilterTextChange}/>
                 <ActionBar/>
-                <ClientTable clients={clients} filterText={filterText}/>
+                <ClientTable clients={clients} clients_msg={clients_msg} filterText={filterText}/>
             </div>
         )
     }

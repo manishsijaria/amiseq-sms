@@ -12,6 +12,7 @@ export default class ClientTableHeader extends React.Component {
                     <th>Contact</th>
                     <th>Mobile #</th>
                     <th>Email </th>
+                    <th>SMS</th>
                     <th>Actions </th>
                 </tr>
             </thead>

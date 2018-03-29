@@ -7,10 +7,15 @@ import { connect } from 'react-redux'
 
 import FilterableClientTable from './filterTable/filterableClientTable'
 
+import socketIOClient from 'socket.io-client'
+
 class FullClients extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { with_or_without_candidates: 'WITHOUT_ASSOC_CANDIDATES' }
+        this.state = { 
+            with_or_without_candidates: 'WITHOUT_ASSOC_CANDIDATES',
+            clients_msg: [] 
+        }
     }
     setWithorWithoutCandidates = (event) => {
         //alert(event.target.value) 
@@ -24,11 +29,13 @@ class FullClients extends React.Component {
         if(!clients.length) { //NOTE: optimization on client, get the cached clients from redux store.
             dispatch(clientActions.getClients())
         }
+        this.socket_clients = socketIOClient('http://127.0.0.1:3001/clients');
+        this.socket_clients.on("clients-msgs", data => { this.setState({ clients_msg: data }) })
     }
 
     render() {
         const { clients, clientArray } = this.props
-        const { with_or_without_candidates } = this.state
+        const { with_or_without_candidates, clients_msg } = this.state
         return(
           <div>
             {/* Buttons with Link */}
@@ -64,7 +71,7 @@ class FullClients extends React.Component {
             </FormGroup>                    
             <br/>
             <h4>Clients List </h4>
-            <FilterableClientTable clients={clients}/>       
+            <FilterableClientTable clients={clients} clients_msg={clients_msg}/>       
           </div>  
         )      
     }
