@@ -4,9 +4,9 @@ import React from 'react'
 import { Table } from 'reactstrap'
 
 import '../../../styles/table.css'
-import  { twilioKeyConstants } from '../../../_constants'
+import  { ServerConstants } from '../../../_constants'
 
- export default class MsgsTable extends React.Component {
+export default class MsgsTable extends React.Component {
    
     render() {
         const { msgs, searchText  } = this.props
@@ -17,7 +17,7 @@ import  { twilioKeyConstants } from '../../../_constants'
         msgs.forEach((msg) => {
             var indexOfSearchText = msg.sms_text.toLowerCase().indexOf(searchText.toLowerCase())
             if(!searchText.length || (indexOfSearchText === -1)) {
-                if(twilioKeyConstants.amiseq_no === msg.msg_from) {
+                if(ServerConstants.TWILIO_AMISEQ_NO === msg.msg_from) {
                     rows.push(<tr className='amiseq'> <td>{msg.message_date} </td> <td>{msg.sms_text} </td> </tr>)
                 } else {
                     rows.push(<tr className='others'> <td>{msg.message_date} </td> <td>{msg.sms_text} </td> </tr>)
@@ -26,7 +26,7 @@ import  { twilioKeyConstants } from '../../../_constants'
                 var leftText = msg.sms_text.slice(0,indexOfSearchText)
                 var rightText = msg.sms_text.slice(indexOfSearchText + searchText.length, msg.sms_text.length)
                 var highlightText = msg.sms_text.slice(indexOfSearchText , indexOfSearchText + searchText.length) 
-                if(twilioKeyConstants.amiseq_no === msg.msg_from) {
+                if(ServerConstants.TWILIO_AMISEQ_NO === msg.msg_from) {
                     rows.push(<tr className='amiseq'> 
                                 <td>{msg.message_date} </td> 
                                 <td>{leftText}<span className='highlight'>{highlightText}</span>{rightText} </td> 

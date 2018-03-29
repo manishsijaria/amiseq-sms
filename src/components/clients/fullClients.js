@@ -6,7 +6,7 @@ import { clientActions } from '../../_actions'
 import { connect } from 'react-redux'
 
 import FilterableClientTable from './filterTable/filterableClientTable'
-
+import { ServerConstants } from '../../_constants'
 import socketIOClient from 'socket.io-client'
 
 class FullClients extends React.Component {
@@ -29,7 +29,7 @@ class FullClients extends React.Component {
         if(!clients.length) { //NOTE: optimization on client, get the cached clients from redux store.
             dispatch(clientActions.getClients())
         }
-        this.socket_clients = socketIOClient('http://127.0.0.1:3001/clients');
+        this.socket_clients = socketIOClient('http://127.0.0.1:' + ServerConstants.SERVER_PORT + '/clients');
         this.socket_clients.on("clients-msgs", data => { this.setState({ clients_msg: data }) })
     }
 

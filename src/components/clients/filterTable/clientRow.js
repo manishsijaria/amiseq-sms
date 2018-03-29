@@ -5,6 +5,7 @@ import  { Link } from 'react-router-dom'
 
 import { clientActions } from '../../../_actions'
 import { connect } from 'react-redux'
+import '../../../styles/table.css'
 
 class ClientRow extends React.Component {
     constructor(props) {
@@ -47,7 +48,8 @@ class ClientRow extends React.Component {
                 <td>{client.contact_person_name}</td>
                 <td>{client.mobile_no}</td>
                 <td>{client.email}</td>
-                <td><Badge color="secondary">{msg_count}</Badge></td>
+                {(parseInt(msg_count,10) === 0) ? <td><Badge color="secondary">{msg_count}</Badge></td> 
+                            : <td className='others'><Badge color="secondary">{msg_count}</Badge></td>}
                 <td>
                     <Link to={`/clients/editclient/${client.client_id}`}> <Button color="primary">Edit</Button>{' '} </Link> 
                 </td>
