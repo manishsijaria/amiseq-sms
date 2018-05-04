@@ -1,8 +1,8 @@
 
 import React from 'react'
 import SearchBar from './searchBar'
-import  CandidateTable from './candidateTable'
-import { ActionBar } from './actionBar'
+import { CandidateTable } from './candidateTable'
+//import { ActionBar } from './actionBar'
 export default class FilterableCandidateTable extends React.Component {
     constructor(props) {
         super(props)
@@ -28,7 +28,7 @@ export default class FilterableCandidateTable extends React.Component {
                             onFilterTextChange={this.handelFilterTextChange} 
                             onSelectRadio={this.handelSelectRadio}
                             option={option}/>
-                <ActionBar/>
+                
                 <CandidateTable candidates={candidates} 
                                 candidates_msg={candidates_msg}
                                 filterText={filterText}

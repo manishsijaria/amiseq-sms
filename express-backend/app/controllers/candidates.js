@@ -3,11 +3,12 @@ var express = require('express')
 var router = express.Router()
 
 var candidatesModel = require('../models/candidates')
+const path = require('path')
 
 router.post('/addcandidate', (req, res) => {
     console.log('/addcandidate post called');
     res.setHeader('Content-Type', 'application/json')
-    candidatesModel.addCandidate(req,(result,err) => {
+    candidatesModel.addCandidate(req,res,(result,err) => {
         if(err) {
             return res.status(404).json(JSON.stringify({msg:err}))
         } else {
@@ -103,4 +104,13 @@ router.get('/getCandidateMsgsCount/:number/:fetchText', (req, res) => {
     })
    
 })
+
+router.get('/downloadResume/:resume_filename', (req, res)=> {
+    console.log('/candidates/downloadResume called via get ===')
+    console.log(req.params.resume_filename)
+    var filePath =  '.' + path.sep + 'resumes' + path.sep + req.params.resume_filename
+    console.log(filePath)
+    res.status(200).download(filePath,req.params.resume_filename)
+})
+
 module.exports = router

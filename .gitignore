@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /express-backend/node_modules
+/express-backend/resumes
 
 # testing
 /coverage

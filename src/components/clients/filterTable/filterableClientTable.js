@@ -19,7 +19,7 @@ export default class FilterableClientTable extends React.Component {
         return(
             <div>
                 <SearchBar filterText={filterText} onFilterTextChange={this.handelFilterTextChange}/>
-                <ActionBar/>
+                <ActionBar clients={clients}/>
                 <ClientTable clients={clients} clients_msg={clients_msg} filterText={filterText}/>
             </div>
         )

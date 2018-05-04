@@ -1,6 +1,9 @@
 
 import 'whatwg-fetch' //in each file before using fetch
 
+//for downloading the file (Resume) from the server.
+var fileDownload = require('js-file-download');
+
 export const candidateServices = {
     addCandidate,
     editCandidate,
@@ -9,14 +12,15 @@ export const candidateServices = {
     smsAll,
     smsChecked,
     getCandidateMsgs,
-    getCandidateMsgsCount
+    getCandidateMsgsCount,
+    downloadResume,
 }
 
 function addCandidate(candidate) {
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type' : 'application/json'},
-        body: JSON.stringify(candidate)
+        //headers: { 'Content-Type' : 'application/json'},
+        body: candidate
     }
     return fetch('/candidates/addcandidate', requestOptions)
             .then(response => {
@@ -149,4 +153,23 @@ function getCandidateMsgsCount(candidate_id, fetchText) {
             })
             .then(msgsCount => {return parseInt(msgsCount,10)})
             .catch(err => {console.log(err)})    
+}
+
+function downloadResume(resume_filename) {
+    const requestOptions = {
+        method: 'GET',
+    }
+    //This fetches the response, reads it as a blob
+    let filename = ''
+    return fetch('/candidates/downloadResume/' + resume_filename, requestOptions)
+            .then(response => {
+                if(response.ok) {
+                    let content = response.headers.get('Content-disposition')
+                    filename = content.split(';')[1].split('filename')[1].split('=')[1].trim().replace(/"/g, '');
+                    return response.blob();
+                }
+                throw new Error("Error in getting file")
+            })
+            .then(blob => { fileDownload(blob,filename)})
+            .catch(err => {console.log(err)})
 }

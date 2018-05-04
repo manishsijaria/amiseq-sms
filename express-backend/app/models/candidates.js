@@ -2,52 +2,72 @@
 var getConnection = require('../../config/dbconnection')
 var modelsUtils = require('./modelsUtils')
 var CONSTANTS = require('../../config/constants')
+var multer  = require('multer')
+
+const storage = multer.diskStorage({
+    destination: function (req, file,cb)  { cb(null,'./resumes/') },
+    filename: function(req, file, cb)  {
+      cb(null, `${file.originalname}`);
+    },
+  });
+const upload = multer({ storage }).single('resume');
 
 const candidate_sql_queries = {
     CANDIDATES_ID : `SELECT candidate_id from candidate ORDER BY candidate_id`,
     CANDIDATES_MSGS: `SELECT msg_id, msg_from from candidate_msg WHERE ? ORDER BY msg_id desc`
 }
 
-module.exports.addCandidate = (req, callback) => {
-    let {  firstname,lastname,mobile_no,phone,
-        email,birthdate,gender,ssn,
-        address,country,state,city,
-        zip,hiredate,client_id, fullname, company_name } = req.body
-    //if '' is inserted in date field 0000-00-00 is inserted in date column.
-    //therefore null is inserted through this function.
-    birthdate = modelsUtils.handelNullField(birthdate)  
-    hiredate = modelsUtils.handelNullField(hiredate)
-    //similarily for client_id foreign key, '' can't be inseretd, we need to send null
-    client_id = modelsUtils.handelNullField(client_id)
-
-    //prepare insert query, with client_id
-    var insert_query = `INSERT INTO candidate(firstname,lastname,mobile_no,phone,
-        email,birthdate,gender,ssn,
-        address,country,state,city,
-        zip,hiredate,client_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`  
-        getConnection((err,connection)=> {
-            connection.query(insert_query,
-                            [firstname,lastname,mobile_no,phone,
-                                email,birthdate,gender,ssn,
-                                address,country,state,city,
-                                zip,hiredate,client_id],
-                            function(err,result) {
-                                connection.release()
-                                if(err) {
-                                    callback(null, err)
-                                    console.log('error in inserting user' + err);                                
-                                } else {
-                                    //NOTE: The response must be a JSON string, so that it is caught on the react-client properly.
-                                    //      Otherwise Err: net::ERR_EMPTY_RESPONSE TypeError: Failed to fetch  occures.
-                                    var success_msg = 'Insert Successful id=' + result.insertId;
-                                    console.log('insert successful : ' + success_msg);
-                                    callback({ candidate_id: result.insertId, firstname: firstname, lastname: lastname,mobile_no: mobile_no, phone: phone,
-                                                email: email, birthdate: birthdate, gender: gender, ssn: ssn,
-                                                address: address, country: country, state: state, city: city,
-                                                zip: zip, hiredate: hiredate, client_id: client_id, fullname: fullname, company_name: company_name }, null)                           
-                                }
-                            })
-        })               
+module.exports.addCandidate = (req,res, callback) => {
+    //console.log(req.file.originalname)
+    upload(req,res, (err)=> {
+        if(err) { 
+            console.log(err)
+        } else {
+            //Note:- If req.file is not specified(not set), no error is generated.
+            //       If the file is existing and again uploaded, no error is generated.
+            let originalfilename = (req.file === 'undefined') ? '' : req.file.originalname
+            console.log(req.body.candidate)
+            let {  firstname,lastname,mobile_no,phone,
+                email,birthdate,gender,ssn,
+                address,country,state,city,
+                zip,hiredate,client_id, fullname, company_name } = JSON.parse(req.body.candidate)
+            //if '' is inserted in date field 0000-00-00 is inserted in date column.
+            //therefore null is inserted through this function.
+            birthdate = modelsUtils.handelNullField(birthdate)  
+            hiredate = modelsUtils.handelNullField(hiredate)
+            //similarily for client_id foreign key, '' can't be inseretd, we need to send null
+            client_id = modelsUtils.handelNullField(client_id)
+        
+            //prepare insert query, with client_id
+            var insert_query = `INSERT INTO candidate(firstname,lastname,mobile_no,phone,
+                email,birthdate,gender,ssn,
+                address,country,state,city,
+                zip,hiredate,client_id,resume_filename) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`  
+                getConnection((err,connection)=> {
+                    connection.query(insert_query,
+                                    [firstname,lastname,mobile_no,phone,
+                                        email,birthdate,gender,ssn,
+                                        address,country,state,city,
+                                        zip,hiredate,client_id,originalfilename],
+                                    function(err,result) {
+                                        connection.release()
+                                        if(err) {
+                                            callback(null, err)
+                                            console.log('error in inserting user' + err);                                
+                                        } else {
+                                            //NOTE: The response must be a JSON string, so that it is caught on the react-client properly.
+                                            //      Otherwise Err: net::ERR_EMPTY_RESPONSE TypeError: Failed to fetch  occures.
+                                            var success_msg = 'Insert Successful id=' + result.insertId;
+                                            console.log('insert successful : ' + success_msg);
+                                            callback({ candidate_id: result.insertId, firstname: firstname, lastname: lastname,mobile_no: mobile_no, phone: phone,
+                                                        email: email, birthdate: birthdate, gender: gender, ssn: ssn,
+                                                        address: address, country: country, state: state, city: city,
+                                                        zip: zip, hiredate: hiredate, client_id: client_id, fullname: fullname, company_name: company_name, resume_filename:originalfilename  }, null)                           
+                                        }
+                                    })
+                })            
+        }
+    })      
 }
 module.exports.editCandidate = (number, req, callback) => {
     var update_query = `UPDATE candidate SET ? WHERE ?`
@@ -91,6 +111,7 @@ module.exports.getCandidates = (callback) => {
                             CONCAT(candidate.firstname,' ', candidate.lastname) as fullname, 
                             DATE_FORMAT(hiredate,"%Y-%m-%d") as hiredate, 
                             DATE_FORMAT(birthdate,"%Y-%m-%d") as birthdate, 
+                            candidate.resume_filename,
                             client.company_name
                         from candidate
                         left join client on candidate.client_id=client.client_id`

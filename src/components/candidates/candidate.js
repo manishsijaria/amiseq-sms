@@ -16,8 +16,9 @@ class Candidate extends React.Component {
                             email:'',       birthdate: '',              gender: '',     ssn: '',
                             address: '',    country:'United States',    state: '',      city:'',
                             zip: '',        hiredate: '',               client_id: '',
-                            fullname:'',    company_name: ''
+                            fullname:'',    company_name: '',           resume_filename:'' 
                         },  
+                        formData: new FormData(),
                         submitted: false   
                     }
     }
@@ -80,11 +81,25 @@ class Candidate extends React.Component {
                 })
                 this.setState({  candidate: { ...candidate,  client_id:client_id, company_name: company_name } }) 
                 break;
+            case 'selectedFile':
+                //this.setState({ resume: event.target.files[0]})
+                //alert(this.state.resume)
+                //let formData = new FormData()
+                let formData = this.state.formData
+                formData.append('resume', event.target.files[0] )       
+                this.setState({ formData: formData })
+                break;                
             default:
                 this.setState({  candidate: { ...candidate, [name] : value } })            
         }
     }
 
+    onDownloadResume = (event) => {
+        event.preventDefault()
+        const { dispatch } = this.props
+        //alert(this.state.candidate.resume_filename)
+        dispatch(candidateActions.downloadResume(this.state.candidate.resume_filename))
+    }
 
     handleSubmit = (event) => {
         event.preventDefault()
@@ -96,11 +111,19 @@ class Candidate extends React.Component {
         const URL = this.props.match.url
         if(firstname && lastname && mobile_no) {
             if( (hiredate && client_id) || (!hiredate && !client_id) ) {
+                let formData = this.state.formData
+
+                //if submit is hit multiple times,  candidate key with values get appended many times.
+                if(formData.has('candidate')) { 
+                    formData.delete('candidate')
+                }
+                formData.append('candidate', JSON.stringify(this.state.candidate) )
+                this.setState({formData: formData})
                 if(URL.indexOf('/candidates/editcandidate') !== -1) {
                     const number = parseInt(this.props.match.params.number,10)
                     dispatch(candidateActions.editCandidate(number, this.state.candidate))
                 } else {
-                    dispatch(candidateActions.addCandidate(this.state.candidate))
+                    dispatch(candidateActions.addCandidate(this.state.formData))
                 }
             }
         }
@@ -108,7 +131,7 @@ class Candidate extends React.Component {
     }
     render() {
         const { firstname,lastname,mobile_no,phone, email,birthdate,gender,ssn,address,
-                country, state, city,zip,hiredate,client_id } = this.state.candidate
+                country, state, city,zip,hiredate,client_id, resume_filename  } = this.state.candidate
         const { submitted } = this.state
         const { clients } = this.props
         //alert(clients.length)
@@ -218,7 +241,23 @@ class Candidate extends React.Component {
                             <Input type="text" name="zip" value={zip} onChange={this.handelChange}/>
                         </Col>
                     </FormGroup>                     
-                        
+                   {/* File Upload */}  
+                   {resume_filename === '' ?
+                        <FormGroup row>
+                            <Label for="selectedFile" sm={3}>Upload Resume</Label>
+                            <Col sm={9}>               
+                                <Input type="file" name="selectedFile" onChange={this.handelChange}/>  
+                            </Col>
+                        </FormGroup>
+                    :
+                        <FormGroup row>
+                            <Col sm={{ size: 10, offset: 3 }}>
+                                <Label sm={3}>Resume File: {resume_filename}</Label>
+                                <Button color="primary" onClick={this.onDownloadResume}>Download Resume</Button>{' '}
+                                <Button color="primary">Delete Resume</Button>
+                            </Col>
+                        </FormGroup>
+                    }                                     
                                                                                                                                                                                                          
                     <FormGroup check row>
                         <Col sm={{ size: 10, offset: 5 }}>

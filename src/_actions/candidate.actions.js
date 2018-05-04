@@ -18,7 +18,8 @@ export const candidateActions = {
     smsAll,
     smsChecked,
     getCandidateMsgs,
-    getCandidateMsgsCount
+    getCandidateMsgsCount,
+    downloadResume
 }
 
 function addCandidate(candidate) {
@@ -177,4 +178,16 @@ function getCandidateMsgsCount(candidate_id, fetchText) {
         })
     }
     function success(msgsCount) { return {type: candidateMsgCountConstants.GET_CANDIDATE_MSGS_COUNT, msgsCount }}
+}
+
+function downloadResume(candidate_id) {
+    return (dispatch) => {
+        candidateServices.downloadResume(candidate_id)
+        .then(data => {
+            //alert(data)
+            
+            dispatch(success(data))
+        })
+    }
+    function success(data) { return {type:'DOWNLOADED_RESUME_DATA', data}}
 }
