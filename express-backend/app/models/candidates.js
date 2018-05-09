@@ -28,7 +28,7 @@ module.exports.addCandidate = (req,res, callback) => {
             //       If the file is existing and again uploaded, no error is generated.
             let originalfilename = (req.file === undefined) ? '' : req.file.originalname
             console.log(req.body.candidate)
-            let {  firstname,lastname,mobile_no,phone,
+            let {  firstname,lastname,mobile_no,notes, phone,
                 email,birthdate,gender,ssn,
                 address,country,state,city,
                 zip,hiredate,client_id, fullname, company_name } = JSON.parse(req.body.candidate)
@@ -40,13 +40,13 @@ module.exports.addCandidate = (req,res, callback) => {
             client_id = modelsUtils.handelNullField(client_id)
             console.log('originalfilename=' + originalfilename)
             //prepare insert query, with client_id
-            var insert_query = `INSERT INTO candidate(firstname,lastname,mobile_no,phone,
+            var insert_query = `INSERT INTO candidate(firstname,lastname,mobile_no, notes,phone,
                 email,birthdate,gender,ssn,
                 address,country,state,city,
-                zip,hiredate,client_id,resume_filename) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`  
+                zip,hiredate,client_id,resume_filename) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`  
                 getConnection((err,connection)=> {
                     connection.query(insert_query,
-                                    [firstname,lastname,mobile_no,phone,
+                                    [firstname,lastname,mobile_no,notes, phone,
                                         email,birthdate,gender,ssn,
                                         address,country,state,city,
                                         zip,hiredate,client_id,originalfilename],
@@ -60,7 +60,7 @@ module.exports.addCandidate = (req,res, callback) => {
                                             //      Otherwise Err: net::ERR_EMPTY_RESPONSE TypeError: Failed to fetch  occures.
                                             var success_msg = 'Insert Successful id=' + result.insertId;
                                             console.log('insert successful : ' + success_msg);
-                                            callback({ candidate_id: result.insertId, firstname: firstname, lastname: lastname,mobile_no: mobile_no, phone: phone,
+                                            callback({ candidate_id: result.insertId, firstname: firstname, lastname: lastname,mobile_no: mobile_no, notes:notes, phone: phone,
                                                         email: email, birthdate: birthdate, gender: gender, ssn: ssn,
                                                         address: address, country: country, state: state, city: city,
                                                         zip: zip, hiredate: hiredate, client_id: client_id, fullname: fullname, company_name: company_name, resume_filename:originalfilename  }, null)                           
@@ -85,7 +85,7 @@ module.exports.editCandidate = (number, req,res, callback) => {
             //       If the file is existing and again uploaded, no error is generated.
             let new_filename = (req.file === undefined) ? '' : req.file.originalname
             console.log(req.body.candidate)
-            let {  firstname,lastname,mobile_no,phone,
+            let {  firstname,lastname,mobile_no,notes, phone,
                 email,birthdate,gender,ssn,
                 address,country,state,city,
                 zip,hiredate,client_id, fullname, company_name,resume_filename } = JSON.parse(req.body.candidate)
@@ -110,7 +110,7 @@ module.exports.editCandidate = (number, req,res, callback) => {
                         hiredate = modelsUtils.handelNullField(hiredate)  
                         client_id = modelsUtils.handelNullField(client_id)
                         getConnection((err,connection)=> {
-                            connection.query(update_query,[{  firstname,lastname,mobile_no,phone,
+                            connection.query(update_query,[{  firstname,lastname,mobile_no,notes, phone,
                                                             email,birthdate,gender,ssn,
                                                             address,country,state,city,
                                                             zip,hiredate,client_id,resume_filename },condition],
@@ -122,7 +122,7 @@ module.exports.editCandidate = (number, req,res, callback) => {
                                                                 } else {
                                                                     var success_msg = 'Update Successful id=' + condition.candidate_id
                                                                     console.log(success_msg)
-                                                                    callback({ candidate_id: condition.candidate_id, firstname: firstname, lastname: lastname,mobile_no: mobile_no, phone: phone,
+                                                                    callback({ candidate_id: condition.candidate_id, firstname: firstname, lastname: lastname,mobile_no: mobile_no, notes:notes, phone: phone,
                                                                         email: email, birthdate: birthdate, gender: gender, ssn: ssn,
                                                                         address: address, country: country, state: state, city: city,
                                                                         zip: zip, hiredate: hiredate, client_id: client_id,fullname: fullname,company_name:company_name,resume_filename:resume_filename }, null) 
@@ -140,7 +140,7 @@ module.exports.editCandidate = (number, req,res, callback) => {
 //Pass client_id as null to fetch all candidates, else pass client_id.
 module.exports.getCandidates = (callback) => {
     let queryCandidates = `select 	candidate.candidate_id, candidate.firstname, candidate.lastname,
-                            candidate.mobile_no, candidate.client_id,	candidate.phone ,
+                            candidate.mobile_no, candidate.notes, candidate.client_id,	candidate.phone ,
                             candidate.email , candidate.gender, candidate.ssn ,candidate.address ,
                             candidate.country ,candidate.state ,candidate.city ,candidate.zip, 
                             CONCAT(candidate.firstname,' ', candidate.lastname) as fullname, 

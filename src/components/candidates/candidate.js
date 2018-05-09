@@ -12,7 +12,7 @@ class Candidate extends React.Component {
         super(props)
         this.state = {
                         candidate: {
-                            firstname: '',  lastname: '',               mobile_no: '',  phone:'',
+                            firstname: '',  lastname: '',               mobile_no: '',  notes:'', phone:'',
                             email:'',       birthdate: '',              gender: '',     ssn: '',
                             address: '',    country:'United States',    state: '',      city:'',
                             zip: '',        hiredate: '',               client_id: '',
@@ -145,7 +145,7 @@ class Candidate extends React.Component {
 
     }
     render() {
-        const { firstname,lastname,mobile_no,phone, email,birthdate,gender,ssn,address,
+        const { firstname,lastname,mobile_no,notes, phone, email,birthdate,gender,ssn,address,
                 country, state, city,zip,hiredate,client_id, resume_filename  } = this.state.candidate
         const { submitted } = this.state
         const { clients } = this.props
@@ -185,6 +185,12 @@ class Candidate extends React.Component {
                             {submitted && !mobile_no && <div className="text-danger">Mobile no. is required</div>}
                         </Col>
                     </FormGroup>   
+                    <FormGroup row>
+                        <Label for="notes" sm={3}>Notes</Label>
+                        <Col sm={9}>
+                            <Input type="textarea" name="notes" value={notes} onChange={this.handelChange}/>
+                        </Col>
+                    </FormGroup>                     
                     <FormGroup row>
                         <Label for="hiredate" sm={3}>Hiredate</Label>
                         <Col sm={9}>
