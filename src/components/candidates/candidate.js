@@ -88,6 +88,7 @@ class Candidate extends React.Component {
                 let formData = this.state.formData
                 formData.append('resume', event.target.files[0] )       
                 this.setState({ formData: formData })
+                
                 break;                
             default:
                 this.setState({  candidate: { ...candidate, [name] : value } })            
@@ -100,7 +101,11 @@ class Candidate extends React.Component {
         //alert(this.state.candidate.resume_filename)
         dispatch(candidateActions.downloadResume(this.state.candidate.resume_filename))
     }
-
+    onDeleteResume = (event) => {
+        event.preventDefault()
+        this.setState({candidate: {...this.state.candidate,resume_filename:''}  })
+        //alert(this.state.candidate.resume_filename)
+    }
     handleSubmit = (event) => {
         event.preventDefault()
         this.setState({ submitted: true })
@@ -114,17 +119,27 @@ class Candidate extends React.Component {
                 let formData = this.state.formData
 
                 //if submit is hit multiple times,  candidate key with values get appended many times.
-                if(formData.has('candidate')) { 
-                    formData.delete('candidate')
+
+                if(formData.has('resume')) {
+                    this.setState({ candidate: {...this.state.candidate, resume_filename:formData.get('resume').name}  })
                 }
-                formData.append('candidate', JSON.stringify(this.state.candidate) )
-                this.setState({formData: formData})
-                if(URL.indexOf('/candidates/editcandidate') !== -1) {
-                    const number = parseInt(this.props.match.params.number,10)
-                    dispatch(candidateActions.editCandidate(number, this.state.candidate))
-                } else {
-                    dispatch(candidateActions.addCandidate(this.state.formData))
-                }
+                //Note: As we set the state in the above line, the render method is called 
+                //      which takes time, therefore in order to get the correct candidate JSON
+                //      with resume_filename set we need setTimeout.
+                setTimeout(()=>{
+                    if(formData.has('candidate')) { 
+                        formData.delete('candidate')
+                    }
+                    formData.append('candidate', JSON.stringify(this.state.candidate) )
+                
+                    this.setState({formData: formData})
+                    if(URL.indexOf('/candidates/editcandidate') !== -1) {
+                        const number = parseInt(this.props.match.params.number,10)
+                        dispatch(candidateActions.editCandidate(number, this.state.formData))
+                    } else {
+                        dispatch(candidateActions.addCandidate(this.state.formData))
+                    }
+                },500)
             }
         }
 
@@ -242,7 +257,7 @@ class Candidate extends React.Component {
                         </Col>
                     </FormGroup>                     
                    {/* File Upload */}  
-                   {resume_filename === '' ?
+                   { resume_filename === '' ?
                         <FormGroup row>
                             <Label for="selectedFile" sm={3}>Upload Resume</Label>
                             <Col sm={9}>               
@@ -254,7 +269,7 @@ class Candidate extends React.Component {
                             <Col sm={{ size: 10, offset: 3 }}>
                                 <Label sm={3}>Resume File: {resume_filename}</Label>
                                 <Button color="primary" onClick={this.onDownloadResume}>Download Resume</Button>{' '}
-                                <Button color="primary">Delete Resume</Button>
+                                <Button color="primary" onClick={this.onDeleteResume}>Delete Resume</Button>
                             </Col>
                         </FormGroup>
                     }                                     

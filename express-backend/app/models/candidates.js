@@ -4,6 +4,7 @@ var modelsUtils = require('./modelsUtils')
 var CONSTANTS = require('../../config/constants')
 var multer  = require('multer')
 
+
 const storage = multer.diskStorage({
     destination: function (req, file,cb)  { cb(null,'./resumes/') },
     filename: function(req, file, cb)  {
@@ -25,7 +26,7 @@ module.exports.addCandidate = (req,res, callback) => {
         } else {
             //Note:- If req.file is not specified(not set), no error is generated.
             //       If the file is existing and again uploaded, no error is generated.
-            let originalfilename = (req.file === 'undefined') ? '' : req.file.originalname
+            let originalfilename = (req.file === undefined) ? '' : req.file.originalname
             console.log(req.body.candidate)
             let {  firstname,lastname,mobile_no,phone,
                 email,birthdate,gender,ssn,
@@ -37,7 +38,7 @@ module.exports.addCandidate = (req,res, callback) => {
             hiredate = modelsUtils.handelNullField(hiredate)
             //similarily for client_id foreign key, '' can't be inseretd, we need to send null
             client_id = modelsUtils.handelNullField(client_id)
-        
+            console.log('originalfilename=' + originalfilename)
             //prepare insert query, with client_id
             var insert_query = `INSERT INTO candidate(firstname,lastname,mobile_no,phone,
                 email,birthdate,gender,ssn,
@@ -69,38 +70,72 @@ module.exports.addCandidate = (req,res, callback) => {
         }
     })      
 }
-module.exports.editCandidate = (number, req, callback) => {
-    var update_query = `UPDATE candidate SET ? WHERE ?`
-    condition = {candidate_id: number}
-    let {  firstname,lastname,mobile_no,phone,
-        email,birthdate,gender,ssn,
-        address,country,state,city,
-        zip,hiredate,client_id, fullname, company_name } = req.body
-    birthdate = modelsUtils.handelNullField(birthdate)
-    hiredate = modelsUtils.handelNullField(hiredate)  
-    client_id = modelsUtils.handelNullField(client_id)
-    getConnection((err,connection)=> {
-        connection.query(update_query,[{  firstname,lastname,mobile_no,phone,
-                                        email,birthdate,gender,ssn,
-                                        address,country,state,city,
-                                        zip,hiredate,client_id },condition],
-                                        function(err,result)  {
-                                            connection.release()
-                                            if(err) {
-                                                callback(null,err)
-                                                console.log('error in update ' + err)
-                                            } else {
-                                                var success_msg = 'Update Successful id=' + condition.candidate_id
-                                                console.log(success_msg)
-                                                callback({ candidate_id: condition.candidate_id, firstname: firstname, lastname: lastname,mobile_no: mobile_no, phone: phone,
-                                                    email: email, birthdate: birthdate, gender: gender, ssn: ssn,
-                                                    address: address, country: country, state: state, city: city,
-                                                    zip: zip, hiredate: hiredate, client_id: client_id,fullname: fullname,company_name:company_name }, null) 
-                                            }
-                                        }
-        )
-    })
+//module.exports.editCandidate = (number, req, callback) => {
+module.exports.editCandidate = (number, req,res, callback) => {
+    //Check if the candidate has resume_filename and is not null.
+    //Delete the file from ./resumes/ folder.
+   
+    let select_query = `Select resume_filename from candidate WHERE candidate_id=` + number
+    upload(req,res, (err)=> {
+        if(err) { 
+            console.log(err)
+        } else {
+            console.log('Hello')
+            //Note:- If req.file is not specified(not set), no error is generated.
+            //       If the file is existing and again uploaded, no error is generated.
+            let new_filename = (req.file === undefined) ? '' : req.file.originalname
+            console.log(req.body.candidate)
+            let {  firstname,lastname,mobile_no,phone,
+                email,birthdate,gender,ssn,
+                address,country,state,city,
+                zip,hiredate,client_id, fullname, company_name,resume_filename } = JSON.parse(req.body.candidate)
+                //console.log('resume_filename=' + resume_filename)
+            getConnection((err,connection) => {
+                connection.query(select_query,[], function(err, result){
+                    connection.release()
+                    if(err) { callback(null,err); console.log(err) }
+                    else {
+                        let candidateArr = JSON.parse(JSON.stringify(result))
+                        console.log('new_filename=' + new_filename + ' resume_filename=' + resume_filename)
+                        if(candidateArr[0].resume_filename !== '' && candidateArr[0].resume_filename !== new_filename)  {
+                            modelsUtils.deleteResume(candidateArr[0].resume_filename)
+                        }
 
+
+                        //Update now
+                        var update_query = `UPDATE candidate SET ? WHERE ?`
+                        condition = {candidate_id: number}
+                        //req.body
+                        birthdate = modelsUtils.handelNullField(birthdate)
+                        hiredate = modelsUtils.handelNullField(hiredate)  
+                        client_id = modelsUtils.handelNullField(client_id)
+                        getConnection((err,connection)=> {
+                            connection.query(update_query,[{  firstname,lastname,mobile_no,phone,
+                                                            email,birthdate,gender,ssn,
+                                                            address,country,state,city,
+                                                            zip,hiredate,client_id,resume_filename },condition],
+                                                            function(err,result)  {
+                                                                connection.release()
+                                                                if(err) {
+                                                                    callback(null,err)
+                                                                    console.log('error in update ' + err)
+                                                                } else {
+                                                                    var success_msg = 'Update Successful id=' + condition.candidate_id
+                                                                    console.log(success_msg)
+                                                                    callback({ candidate_id: condition.candidate_id, firstname: firstname, lastname: lastname,mobile_no: mobile_no, phone: phone,
+                                                                        email: email, birthdate: birthdate, gender: gender, ssn: ssn,
+                                                                        address: address, country: country, state: state, city: city,
+                                                                        zip: zip, hiredate: hiredate, client_id: client_id,fullname: fullname,company_name:company_name,resume_filename:resume_filename }, null) 
+                                                                }
+                                                            }
+                            )
+                        })                
+
+                    }   
+                }) 
+            })
+        }
+    })
 }
 //Pass client_id as null to fetch all candidates, else pass client_id.
 module.exports.getCandidates = (callback) => {
@@ -134,8 +169,11 @@ module.exports.getCandidates = (callback) => {
 }
 
 module.exports.deleteCandidates = (candidateArray , callback) => {
+
     var deleteCandidates = `DELETE FROM candidate WHERE candidate.candidate_id IN (` + candidateArray.join(',') + `)`
     getConnection((err,connection)=> {
+        //While deleting candidates delete there resumes.
+        modelsUtils.deleteCandidatesResumes(candidateArray,connection)
         connection.query(deleteCandidates, [], (err, result) => {
             connection.release()
             if(err) {

@@ -20,7 +20,8 @@ router.put('/editcandidate/:number', (req, res) => {
     console.log('/candidates/editcandidate put called');
     console.log('number=' + req.params.number)
     res.setHeader('Content-Type', 'application/json')
-    candidatesModel.editCandidate(parseInt(req.params.number,10), req, (result,err) => {
+    //candidatesModel.editCandidate(parseInt(req.params.number,10), req, (result,err) => {
+    candidatesModel.editCandidate(parseInt(req.params.number,10), req, res, (result,err) => {
         if(err) {
             return res.status(404).json(JSON.stringify({msg:err}))
         } else {

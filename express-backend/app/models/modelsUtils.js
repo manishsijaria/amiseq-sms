@@ -1,9 +1,12 @@
 var CONSTANTS = require('../../config/constants')
 var twilio = require('twilio')
+var fs = require('fs');
+const path = require('path')
 
 const sql_queries = {
     INSERT_CLIENT: `INSERT INTO client_msg(msg_from,msg_to,sms_text,client_id) VALUES(?,?,?,?)`,
-    INSERT_CANDIDATE: `INSERT INTO candidate_msg(msg_from,msg_to,sms_text,candidate_id) VALUES(?,?,?,?)`
+    INSERT_CANDIDATE: `INSERT INTO candidate_msg(msg_from,msg_to,sms_text,candidate_id) VALUES(?,?,?,?)`,
+    SELECT_CANDIDATE_RESUME_FILENAME: `SELECT resume_filename from candidate WHERE candidate.candidate_id IN `,
 }
 
 
@@ -136,6 +139,38 @@ module.exports.sendMsgToCandidates = (smsText, candidateList, connection, bWithA
                                     candidateList[i].mobile_no)
         }
     }
+}
+
+module.exports.deleteResume = (resume_filename) => {
+    var filePath =  '.' + path.sep + 'resumes' + path.sep + resume_filename
+    if(fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath)
+    }
+}
+
+module.exports.deleteCandidatesResumes = (candidateArray, connection) => {
+    let SQL = sql_queries.SELECT_CANDIDATE_RESUME_FILENAME +  `(` + candidateArray.join(',') + `)`
+    console.log('deleteCandidatesResumes called')
+    console.log('SQL=' + SQL)
+    connection.query(SQL,
+        [],
+        function(err,result) {
+            if(err) { console.log(err)  }
+            else {
+                for(let i=0; i < result.length; i++) {
+                    //with client_id send the message to client.
+                    console.log(result[i].resume_filename)
+                    if(result[i].resume_filename !== '') {
+                        //TODO: this call does not work!!!!
+                       // this.deleteResume(result[i].resume_filename)
+                       let filePath =  '.' + path.sep + 'resumes' + path.sep + result[i].resume_filename
+                       if(fs.existsSync(filePath)) {
+                           fs.unlinkSync(filePath)
+                       }                       
+                    }
+                }
+            }
+        })       
 }
 
 module.exports.handelNullField = (field) => {

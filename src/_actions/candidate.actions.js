@@ -180,14 +180,8 @@ function getCandidateMsgsCount(candidate_id, fetchText) {
     function success(msgsCount) { return {type: candidateMsgCountConstants.GET_CANDIDATE_MSGS_COUNT, msgsCount }}
 }
 
-function downloadResume(candidate_id) {
+function downloadResume(resume_filename) {
     return (dispatch) => {
-        candidateServices.downloadResume(candidate_id)
-        .then(data => {
-            //alert(data)
-            
-            dispatch(success(data))
-        })
+        candidateServices.downloadResume(resume_filename)
     }
-    function success(data) { return {type:'DOWNLOADED_RESUME_DATA', data}}
 }

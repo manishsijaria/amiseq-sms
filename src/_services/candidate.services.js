@@ -36,8 +36,9 @@ function addCandidate(candidate) {
 function editCandidate(number, candidate) {
     const requestOptions = {
         method: 'PUT',
-        headers: { 'Content-Type' : 'application/json'},
-        body: JSON.stringify(candidate)
+        //headers: { 'Content-Type' : 'application/json'},
+        //body: JSON.stringify(candidate)
+        body: candidate
     }
     return fetch('/candidates/editcandidate/' + number, requestOptions)
             .then(response => {
