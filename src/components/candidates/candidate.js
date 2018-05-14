@@ -12,7 +12,8 @@ class Candidate extends React.Component {
         super(props)
         this.state = {
                         candidate: {
-                            firstname: '',  lastname: '',               mobile_no: '',  notes:'', phone:'',
+                            firstname: '',  lastname: '',               mobile_no: '',  
+                            notes:'',       phone:'',
                             email:'',       birthdate: '',              gender: '',     ssn: '',
                             address: '',    country:'United States',    state: '',      city:'',
                             zip: '',        hiredate: '',               client_id: '',
@@ -60,6 +61,8 @@ class Candidate extends React.Component {
     handelChange = (event) => {
         const { candidate } = this.state
         const { name, value } = event.target
+        const { clients } = this.props
+        let  client_id = ''
         switch(name) {
             case 'firstname':
                 this.setState({ candidate: {...candidate, [name] : value, fullname: value + ' ' + candidate.lastname}})
@@ -68,8 +71,8 @@ class Candidate extends React.Component {
                 this.setState({ candidate: {...candidate, [name] : value, fullname: candidate.firstname + ' ' + value}})
                 break;
             case 'client_id':
-                const { clients } = this.props
-                let company_name = '', client_id = ''
+                
+                let company_name = ''
                 clients.forEach((client)=>{
                     //alert(typeof(value))
                     if(client.client_id === parseInt(value,10)) {
@@ -118,7 +121,7 @@ class Candidate extends React.Component {
             if( (hiredate && client_id) || (!hiredate && !client_id) ) {
                 let formData = this.state.formData
 
-                //if submit is hit multiple times,  candidate key with values get appended many times.
+                this.setState({  candidate: { ...this.state.candidate } }) 
 
                 if(formData.has('resume')) {
                     this.setState({ candidate: {...this.state.candidate, resume_filename:formData.get('resume').name}  })
@@ -127,11 +130,12 @@ class Candidate extends React.Component {
                 //      which takes time, therefore in order to get the correct candidate JSON
                 //      with resume_filename set we need setTimeout.
                 setTimeout(()=>{
+                    //if submit is hit multiple times,  candidate key with values get appended many times.
                     if(formData.has('candidate')) { 
                         formData.delete('candidate')
                     }
                     formData.append('candidate', JSON.stringify(this.state.candidate) )
-                
+                    //alert(JSON.stringify(this.state.candidate))
                     this.setState({formData: formData})
                     if(URL.indexOf('/candidates/editcandidate') !== -1) {
                         const number = parseInt(this.props.match.params.number,10)
@@ -142,8 +146,8 @@ class Candidate extends React.Component {
                 },500)
             }
         }
-
     }
+
     render() {
         const { firstname,lastname,mobile_no,notes, phone, email,birthdate,gender,ssn,address,
                 country, state, city,zip,hiredate,client_id, resume_filename  } = this.state.candidate
@@ -153,7 +157,7 @@ class Candidate extends React.Component {
 
         var tagOptions
         if(!clients.length) {
-            tagOptions = `<option>{' '}</option>`
+            tagOptions = `<option key={0} value={0}>{' '}</option>`
         } else { 
             tagOptions =  clients.map(client => <option key={client.client_id} value={client.client_id}>
                                                     {client.company_name}
@@ -184,7 +188,35 @@ class Candidate extends React.Component {
                             <Input type="text" name="mobile_no" value={mobile_no} onChange={this.handelChange}/>
                             {submitted && !mobile_no && <div className="text-danger">Mobile no. is required</div>}
                         </Col>
-                    </FormGroup>   
+                    </FormGroup>  {/*
+                    <FormGroup tag="fieldset" >
+                        <Label sm={3}>For</Label>
+                        <FormGroup check inline>
+                            <Label for="for_client1" >Company 1
+                                <Input type="select" name="for_client1" value={for_client1} onChange={this.handelChange}>
+                                    <option>{' '}</option>
+                                    {tagOptions}
+                                </Input>
+                            </Label>
+                        </FormGroup>
+                        <FormGroup check inline>
+                            <Label for="for_client2">Company 2
+                                <Input type="select" name="for_client2" value={for_client2} onChange={this.handelChange}>
+                                    <option>{' '}</option>
+                                    {tagOptions}
+                                </Input>
+                                </Label>
+                        </FormGroup> 
+                        <FormGroup check inline>
+                            <Label for="for_client3">Company 3
+                                <Input type="select" name="for_client3" value={for_client3} onChange={this.handelChange}>
+                                    <option>{' '}</option>
+                                    {tagOptions}
+                                </Input>
+                            </Label>
+                        </FormGroup>                        
+                    </FormGroup>     
+                    */}                
                     <FormGroup row>
                         <Label for="notes" sm={3}>Notes</Label>
                         <Col sm={9}>

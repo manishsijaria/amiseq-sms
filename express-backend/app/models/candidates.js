@@ -31,16 +31,18 @@ module.exports.addCandidate = (req,res, callback) => {
             let {  firstname,lastname,mobile_no,notes, phone,
                 email,birthdate,gender,ssn,
                 address,country,state,city,
-                zip,hiredate,client_id, fullname, company_name } = JSON.parse(req.body.candidate)
+                zip,hiredate,client_id, fullname, company_name, for_company } = JSON.parse(req.body.candidate)
             //if '' is inserted in date field 0000-00-00 is inserted in date column.
             //therefore null is inserted through this function.
             birthdate = modelsUtils.handelNullField(birthdate)  
             hiredate = modelsUtils.handelNullField(hiredate)
             //similarily for client_id foreign key, '' can't be inseretd, we need to send null
             client_id = modelsUtils.handelNullField(client_id)
+
             console.log('originalfilename=' + originalfilename)
             //prepare insert query, with client_id
-            var insert_query = `INSERT INTO candidate(firstname,lastname,mobile_no, notes,phone,
+            var insert_query = `INSERT INTO candidate(firstname,lastname,mobile_no,
+                notes,phone,
                 email,birthdate,gender,ssn,
                 address,country,state,city,
                 zip,hiredate,client_id,resume_filename) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`  
@@ -60,10 +62,12 @@ module.exports.addCandidate = (req,res, callback) => {
                                             //      Otherwise Err: net::ERR_EMPTY_RESPONSE TypeError: Failed to fetch  occures.
                                             var success_msg = 'Insert Successful id=' + result.insertId;
                                             console.log('insert successful : ' + success_msg);
-                                            callback({ candidate_id: result.insertId, firstname: firstname, lastname: lastname,mobile_no: mobile_no, notes:notes, phone: phone,
+                                            callback({ candidate_id: result.insertId, firstname: firstname, lastname: lastname,mobile_no: mobile_no, 
+                                                        notes:notes, phone: phone,
                                                         email: email, birthdate: birthdate, gender: gender, ssn: ssn,
                                                         address: address, country: country, state: state, city: city,
-                                                        zip: zip, hiredate: hiredate, client_id: client_id, fullname: fullname, company_name: company_name, resume_filename:originalfilename  }, null)                           
+                                                        zip: zip, hiredate: hiredate, client_id: client_id, fullname: fullname, 
+                                                        company_name: company_name, resume_filename:originalfilename  }, null)                           
                                         }
                                     })
                 })            
@@ -109,8 +113,10 @@ module.exports.editCandidate = (number, req,res, callback) => {
                         birthdate = modelsUtils.handelNullField(birthdate)
                         hiredate = modelsUtils.handelNullField(hiredate)  
                         client_id = modelsUtils.handelNullField(client_id)
+
                         getConnection((err,connection)=> {
-                            connection.query(update_query,[{  firstname,lastname,mobile_no,notes, phone,
+                            connection.query(update_query,[{  firstname,lastname,mobile_no,
+                                                            notes, phone,
                                                             email,birthdate,gender,ssn,
                                                             address,country,state,city,
                                                             zip,hiredate,client_id,resume_filename },condition],
@@ -122,7 +128,8 @@ module.exports.editCandidate = (number, req,res, callback) => {
                                                                 } else {
                                                                     var success_msg = 'Update Successful id=' + condition.candidate_id
                                                                     console.log(success_msg)
-                                                                    callback({ candidate_id: condition.candidate_id, firstname: firstname, lastname: lastname,mobile_no: mobile_no, notes:notes, phone: phone,
+                                                                    callback({ candidate_id: condition.candidate_id, firstname: firstname, lastname: lastname,mobile_no: mobile_no, 
+                                                                        notes:notes, phone: phone,
                                                                         email: email, birthdate: birthdate, gender: gender, ssn: ssn,
                                                                         address: address, country: country, state: state, city: city,
                                                                         zip: zip, hiredate: hiredate, client_id: client_id,fullname: fullname,company_name:company_name,resume_filename:resume_filename }, null) 
