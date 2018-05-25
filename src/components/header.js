@@ -20,7 +20,7 @@ class Header extends React.Component {
             <div>
                 <Navbar color="faded" light expand="md">
                     <NavbarBrand href="/">Amiseq Inc.</NavbarBrand>
-                    <NavbarToggler onClick={this.toggle}/>
+                    <NavbarToggler onClick={this.toggle} />
                     <Collapse isOpen={this.state.toggle} navbar>
                         {/* ml-auto sets the NavItem's on right top, 
                             navbar aligns the item vertical on small size*/}

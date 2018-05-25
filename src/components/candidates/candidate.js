@@ -150,7 +150,7 @@ class Candidate extends React.Component {
 
     render() {
         const { firstname,lastname,mobile_no,notes, phone, email,birthdate,gender,ssn,address,
-                country, state, city,zip,hiredate,client_id, resume_filename  } = this.state.candidate
+                country, state, city,zip,hiredate,client_id  } = this.state.candidate
         const { submitted } = this.state
         const { clients } = this.props
         //alert(clients.length)
@@ -294,7 +294,7 @@ class Candidate extends React.Component {
                             <Input type="text" name="zip" value={zip} onChange={this.handelChange}/>
                         </Col>
                     </FormGroup>                     
-                   {/* File Upload */}  
+                   {/* File Upload 
                    { resume_filename === '' ?
                         <FormGroup row>
                             <Label for="selectedFile" sm={3}>Upload Resume</Label>
@@ -310,7 +310,8 @@ class Candidate extends React.Component {
                                 <Button color="primary" onClick={this.onDeleteResume}>Delete Resume</Button>
                             </Col>
                         </FormGroup>
-                    }                                     
+                    }   
+                    */ }                                   
                                                                                                                                                                                                          
                     <FormGroup check row>
                         <Col sm={{ size: 10, offset: 5 }}>

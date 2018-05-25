@@ -79,11 +79,12 @@ class ViewNSendSms extends React.Component {
 
     render() {
         return(
-            <div  style={{height: '78%'}}>
+            <div  >
                 <h6>{this.state.name}</h6>
                 <SearchableTable msgs={this.state.msgs}
                                  fetchText={this.state.fetchText}
                                  onFetchChange={this.handelFetchChange}
+                                 name={this.state.name}
                 />
                 <Sms match={this.props.match}/>
             </div>

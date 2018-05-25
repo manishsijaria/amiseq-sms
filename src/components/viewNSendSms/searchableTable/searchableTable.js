@@ -18,16 +18,16 @@ export default class SearchableTable extends React.Component {
         //alert('searchableTable=' + fetchText)
     }
     render() {
-        const { msgs, fetchText } = this.props
+        const { msgs, fetchText,name } = this.props
         const { searchText } = this.state
         return(
-            <div style={{height: '80%'}}>
+            <div>
                 <SearchBar searchText={searchText} 
                            onSearchTextChange={this.handelSearchTextChange}
                            fetchText={fetchText}
                            onFetchChange={this.handelFetchChange}
                            />
-                <MsgsTable msgs={msgs} searchText={searchText}/>
+                <MsgsTable msgs={msgs} searchText={searchText} name={name}/>
             </div>
         )
     }
